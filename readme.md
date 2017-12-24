@@ -39,4 +39,6 @@ class User extends Model
     }
 }
 ```
+启动服务器:`php -S localhost:8000 -t xiaohu/public`<br>
+浏览器访问:localhost:8000/api/user<br>
 
