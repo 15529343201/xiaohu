@@ -82,3 +82,13 @@ class User extends Model
     }
 }
 ```
+## 登录API的实现
+`[root@localhost xiaohu]# cat routes/web.php`
+```php
+Route::any('api/login',function(){
+    return user_ins()->login();
+});
+```
+session配置:`config/session.php`可以配置,我们先保持默认不做修改<br>
+
+
