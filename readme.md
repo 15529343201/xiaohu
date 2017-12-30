@@ -188,6 +188,28 @@ Route::any('api/question/add',function(){
     return question_ins()->add();
 });
 ```
+Question.php:<br>
+```php
+public function add(){
+     /*检查用户是否登录*/
+     if(!user_ins()->is_logged_in())
+       return ['status'=>0,'msg'=>'login required'];
+
+     /*检查是否存在标题*/
+     if(!rq('title'))
+       return ['status'=>0,'msg'=>'required title'];
+
+     $this->title=rq('title');
+     $this->user_id=session('user_id');
+     if(rq('desc'))
+       $this->desc=rq('desc');//如果存在描述就添加描述
+
+     //保存
+     return $this->save() ?
+       ['status'=>1,'id'=>$this->id]:
+       ['status'=>0,'msg'=>'db insert failed'];
+}
+```
 
 
 
