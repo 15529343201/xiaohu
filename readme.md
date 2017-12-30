@@ -278,6 +278,38 @@ Route::any('api/question/read',function(){
       return ['status'=>1,'data'=>$r];
     }
 ```
+### 删除问题API的实现
+路由建立:<br>
+```php
+Route::any('api/question/remove',function(){
+    return question_ins()->remove();
+});
+```
+```php
+    //删除问题API
+    public function remove(){
+      //检查用户是否登录
+      if(!user_ins()->is_logged_in())
+        return ['status'=>0,'msg'=>'login required'];
+
+      //检查传参中是否有id
+      if(!rq('id'))
+        return ['status'=>0,'msg'=>'id is required'];
+
+      //获取传参id所对应的model
+      $question=$this->find(rq('id'));
+      if(!$question)
+        return ['status'=>0,'question not exists'];
+
+      //检查当前用户是否为问题所有者
+      if(session('user_id')!=$question->user_id)
+        return ['status'=>0,'permission denied'];
+
+      return $question->delete() ?
+        ['status'=>1]:
+        ['status'=>0,'msg'=>'db delete failed'];
+    }
+```
 
 
 
