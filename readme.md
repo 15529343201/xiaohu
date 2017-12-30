@@ -179,6 +179,16 @@ public function up()
     }
 ```
 `php artisan migrate`<br>
+新建一个Question Model:`php artisan make:model Question`<br>
+### 增加问题API的实现
+路由建立:<br>
+```php
+/*增加问题API的建立*/
+Route::any('api/question/add',function(){
+    return question_ins()->add();
+});
+```
+
 
 
 
