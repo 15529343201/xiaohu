@@ -158,5 +158,30 @@ User.php:<br>
       return session('user_id') ?: false;
     }
 ```
+## 问题API的实现
+### Question Migration的建立
+`cd /root/project/xiaohu_source/xiaohu/`<br>
+`php artisan make:migration create_table_questions --create=questions`<br>
+`2017_12_30_011612_create_table_questions.php:`<br>
+```php
+public function up()
+    {
+        Schema::create('questions', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('title',64);
+            $table->text('desc')->nullable()->comment('description');
+            $table->unsignedInteger('user_id');
+            $table->string('status')->default('ok');
+            $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users');
+        });
+    }
+```
+`php artisan migrate`<br>
+
+
+
+
 
 
