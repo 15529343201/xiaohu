@@ -541,6 +541,37 @@ Route::any('api/comment/read',function(){
       return ['status'=>1,'data'=>$data];
     }
 ```
+### 删除评论API的建立
+路由建立:<br>
+```php
+Route::any('api/commnet/remove',function(){
+    return comment_ins()->remove();
+});
+```
+```php
+    /*删除评论API的实现*/
+    public function remove(){
+      if(!user_ins()->is_logged_in())
+        return ['status'=>0,'msg'=>'login required'];
+
+      if(!rq('id'))
+        return ['status'=>0,'msg'=>'id is required'];
+
+      $comment=$this->find(rq('id'));
+      if(!$comment)
+        return ['status'=>0,'msg'=>'comment not exists'];
+
+      if($comment->user_id != session('user_id'))
+        return ['status'=>0,'msg'=>'permission denied'];
+
+      //先删除此评论下所有的回复
+      $this->where('reply_to',rq('id'))->delete();
+      return $comment->delete() ?
+        ['status'=>1]:
+        ['status'=>0,'db delete failed'];
+    }
+```
+
 
 
 
