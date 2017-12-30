@@ -395,6 +395,41 @@ Route::any('api/answer/change',function(){
         ['status'=>0,'msg'=>'db update failed'];
    }
 ```
+### 查看回答API的实现
+路由建立:<br>
+```php
+Route::any('api/answer/read',function(){
+    return answer_ins()->read();
+});
+```
+```php
+   /*查看回答API*/
+   public function read(){
+     if(!rq('id') && !rq('question_id'))
+       return ['status'=>0,'msg'=>'id or question_id is required'];
+
+     if(rq('id')){
+       /*单个回答查看*/
+       $answer=$this->find(rq('id'));
+       if(!$answer)
+         return ['status'=>0,'msg'=>'answer not exists'];
+       return ['status'=>1,'data'=>$answer];
+     }
+
+     /*在检查回答前,检查问题是否存在*/
+     if(!question_ins()->find(rq('question_id')))
+       return ['status'=>0,'msg'=>'question not exists'];
+
+     /*同一问题下的所有回答*/
+     $answers=$this
+       ->where('question_id',rq('question_id'))
+       ->get()
+       ->keyBy('id');
+
+     return ['status'=>1,'data'=>$answers];
+  }
+```
+
 
 
 
