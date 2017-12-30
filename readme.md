@@ -248,7 +248,36 @@ Route::any('api/question/change',function(){
         ['status'=>0,'msg'=>'db insert failed'];
     }
 ```
+### 查看问题API的实现
+路由建立:<br>
+```php
+Route::any('api/question/read',function(){
+    return question_ins()->read();
+});
+```
+```php
+ //查看问题API
+    public function read(){
+      //请求参数中是否有id,如果有id直接返回id所在的行
+      if(rq('id'))
+        return ['status'=>1,'data'=>$this->find(rq('id'))];
 
+      //limit条件
+      $limit=rq('limit') ?: 15;
+      //skip条件,用于分页
+      $skip=(rq('page') ? rq('page')-1 : 0)*$limit;
+
+      //构建query并返回collection数据
+      $r=$this
+        ->orderBy('created_at')
+        ->limit($limit)
+        ->skip($skip)
+        ->get(['id','title','desc','user_id','created_at','updated_at'])
+        ->keyBy('id');
+
+      return ['status'=>1,'data'=>$r];
+    }
+```
 
 
 
