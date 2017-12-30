@@ -429,7 +429,31 @@ Route::any('api/answer/read',function(){
      return ['status'=>1,'data'=>$answers];
   }
 ```
+## 评论API的实现
+### migration的建立
+`php artisan make:migration create_table_comments --create=comments`
+```php
+    public function up()
+    {
+        Schema::create('comments', function (Blueprint $table) {
+            $table->increments('id');
+            $table->text('content');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('question_id')->nullable();
+            $table->unsignedInteger('answer_id')->nullable();
+            $table->unsignedInteger('reply_to')->nullable();
+            $table->timestamps();
 
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('question_id')->references('id')->on('questions');
+            $table->foreign('answer_id')->references('id')->on('answers');
+            $table->foreign('reply_to')->references('id')->on('comments');
+        });
+    }
+```
+检查语法:`php artisan migrate --pretend`<br>
+`php artisan migrate`<br>
+建立model:`php artisan make:model Comment`<br>
 
 
 
