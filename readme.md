@@ -512,6 +512,35 @@ Route::any('api/comment/add',function(){
         ['status'=>0,'msg'=>'db insert failed'];
     }
 ```
+### 查看评论API的实现
+路由建立:<br>
+```php
+Route::any('api/comment/read',function(){
+    return comment_ins()->read();
+});
+```
+```php
+    /*查看评论API的实现*/
+    public function read(){
+      if(!rq('question_id') && !rq('answer_id'))
+        return ['status'=>0,'question_id or answer_id is required'];
+
+      if(rq('question_id')){
+        $question=question_ins()->find(rq('question_id'));
+        if(!$question)
+          return ['status'=>0,'question not exists'];
+        $data=$this->where('question_id',rq('question_id'));
+      }else{
+        $answer=answer_ins()->find(rq('answer_id'));
+        if(!$answer)
+          return ['status'=>0,'answer not exists'];
+        $data=$this->where('answer_id',rq('answer_id'));
+      }
+
+      $data=$data->get()->keyBy('id');
+      return ['status'=>1,'data'=>$data];
+    }
+```
 
 
 
