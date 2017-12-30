@@ -330,7 +330,7 @@ Route::any('api/question/remove',function(){
 ```
 生成表:`php artisan migrate`
 新建model:`php artisan make:model Answer`
-## 添加回答API的实现
+### 添加回答API的实现
 ```php
 Route::any('api/answer/add',function(){
     return answer_ins()->add();
@@ -368,6 +368,32 @@ public function add(){
         ['status'=>1,'id'=>$this->id]:
         ['status'=>0,'msg'=>'db insert failed'];
     }
+```
+### 更新回答API的实现
+路由建立:<br>
+```php
+Route::any('api/answer/change',function(){
+    return answer_ins()->change();
+});
+```
+```php
+    /*更新回答API*/
+    public function change(){
+      if(!user_ins()->is_logged_in())
+        return ['status'=>0,'msg'=>'login required'];
+
+      if(!rq('id')||!rq('content'))
+        return ['status'=>0,'msg'=>'id and content are required'];
+
+      $answer=$this->find(rq('id'));
+      if($answer->user_id!=session('user_id'))
+        return ['status'=>0,'msg'=>'permission denied'];
+
+      $answer->content=rq('content');
+      return $answer->save() ?
+        ['status'=>1]:
+        ['status'=>0,'msg'=>'db update failed'];
+   }
 ```
 
 
