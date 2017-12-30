@@ -329,6 +329,47 @@ Route::any('api/question/remove',function(){
     }
 ```
 生成表:`php artisan migrate`
+新建model:`php artisan make:model Answer`
+## 添加回答API的实现
+```php
+Route::any('api/answer/add',function(){
+    return answer_ins()->add();
+});
+```
+```php
+public function add(){
+      /*添加回答API*/
+      if(!user_ins()->is_logged_in())
+        return ['status'=>0,'msg'=>'login required'];
+
+      /*检查参数中是否存在question_id和content*/
+      if(!rq('question_id') || !rq('content'))
+        return ['status'=>0,'msg'=>'question_id and content are required'];
+
+      /*检查问题是否存在*/
+      $question=question_ins()->find(rq('question_id'));
+      if(!$question)
+        return ['status'=>0,'msg'=>'question not exists'];
+
+      /*检查是否重复回答*/
+      $answered=$this
+        ->where(['question_id'=>rq('question_id'),'user_id'=>session('user_id')])
+        ->count();
+
+      if($answered)
+        return ['status'=>0,'msg'=>'duplicate answers'];
+
+      /*保存数据*/
+      $this->content=rq('content');
+      $this->question_id=rq('question_id');
+      $this->user_id=session('user_id');
+
+      return $this->save() ?
+        ['status'=>1,'id'=>$this->id]:
+        ['status'=>0,'msg'=>'db insert failed'];
+    }
+```
+
 
 
 
