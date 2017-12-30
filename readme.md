@@ -310,6 +310,25 @@ Route::any('api/question/remove',function(){
         ['status'=>0,'msg'=>'db delete failed'];
     }
 ```
+## 回答API的实现
+### migration的建立
+`php artisan make:migration create_table_answers --create=answers`<br>
+```php
+ public function up()
+    {
+        Schema::create('answers', function (Blueprint $table) {
+            $table->increments('id');
+            $table->text('content');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('question_id');
+            $table->timestamps();
+
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('question_id')->references('id')->on('questions');
+        });
+    }
+```
+生成表:`php artisan migrate`
 
 
 
