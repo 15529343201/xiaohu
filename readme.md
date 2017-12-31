@@ -645,7 +645,41 @@ Answer.php:<br>
     return ['status'=>1];
   }
 ```
+### 时间线API
+`php artisan make:controller CommonController`<br>
+`cd xiaohu/app/Http/Controllers`<br>
+`vim CommonController.php`<br>
+```php
+    /*时间线API*/
+    public function timeline(){
+      list($limit,$skip)=paginate(rq('page'),rq('limit'));
 
+      /*获取问题数据*/
+      $questions=question_ins()
+        ->limit($limit)
+        ->skip($skip)
+        ->orderBy('created_at','desc')
+        ->get();
+
+      /*获取回答数据*/
+      $answers=answer_ins()
+        ->limit($limit)
+        ->skip($skip)
+        ->orderBy('created_at','desc')
+        ->get();
+
+      /*合并数据*/
+      $data=$questions->merge($answers);
+      /*将合并的数据按时间排序*/
+      $data=$data->sortByDesc(function($item){
+        return $item->created_at;
+      });
+
+      $data=$data->values()->all();
+
+      return $data;
+    }
+```
 
 
 
