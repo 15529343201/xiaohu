@@ -571,9 +571,80 @@ Route::any('api/commnet/remove',function(){
         ['status'=>0,'db delete failed'];
     }
 ```
+## 通用API的实现
+`php artisan make:migration create_table_answer_user --create=answer_user`
+```php
+    public function up()
+    {
+        Schema::create('answer_user', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('user_id');
+            $table->unsignedInteger('answer_id');
+            $table->unsignedSmallInteger('vote');
+            $table->timestamps();
 
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('answer_id')->references('id')->on('answers');
+            $table->unique(['user_id','answer_id','vote']);
+        });
+    }
+```
+`php artisan migrate`<br>
+```php
+Route::any('api/answer/vote',function(){
+    return answer_ins()->vote();
+});
+```
+Answer.php:<br>
+```php
+    public function users(){
+        return $this
+            ->belongsToMany('App\User')
+            ->withPivot('vote')
+            ->withTimestamps();
+    }
+```
+User.php:<br>
+```php
+    public function answers(){
+        return $this
+            ->belongsToMany('App\Answer')
+            ->withPivot('vote')
+            ->withTimestamps();
+    }
+```
+### 投票API
+Answer.php:<br>
+```php
+  //投票API
+  public function vote(){
+    if(!user_ins()->is_logged_in())
+      return ['status'=>0,'msg'=>'login required'];
 
+    if(!rq('id') || !rq('vote'))
+      return ['status'=>0,'msg'=>'id and vote are required'];
 
+    $answer=$this->find(rq('id'));
+    if(!$answer)
+      return ['status'=>0,'msg'=>'answer not exists'];
+
+    /*1赞同,2反对*/
+    $vote=rq('vote')<=1 ?1:2;
+
+    /*检查此用户是否在相同条件下投过票,如果投过票就删除投票*/
+    $vote_ins=$answer->users()
+      ->newPivotStatement()
+      ->where('user_id',session('user_id'))
+      ->where('answer_id',rq('id'))
+      ->delete();
+
+    $answer
+      ->users()
+      ->attach(session('user_id'),['vote'=>$vote]);
+
+    return ['status'=>1];
+  }
+```
 
 
 
