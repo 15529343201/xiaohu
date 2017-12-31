@@ -685,6 +685,32 @@ Route::any('api/timeline','CommonController@timeline');
       return $data;
     }
 ```
+### 修改密码API
+路由建立:<br>
+```php
+Route::any('api/user/change_password',function(){
+    return user_ins()->change_password();
+});
+```
+```php
+    //修改密码API
+    public function change_password(){
+      if(!$this->is_logged_in())
+        return ['status'=>0,'msg'=>'login required'];
 
+      if(!rq('old_password')||!rq('new_password'))
+        return ['status'=>0,'msg'=>'old_password and new_password are required'];
+
+      $user=$this->find(session('user_id'));
+
+      if(!Hash::check(rq('old_password'),$user->password))
+        return ['status'=>0,'msg'=>'invalid old_password'];
+
+      $user->password=bcrypt(rq('new_password'));
+      return $user->save() ?
+        ['status'=>1]:
+        ['status'=>0,'msg'=>'db update failed'];
+    }
+```
 
 
