@@ -647,6 +647,11 @@ Answer.php:<br>
 ```
 ### 时间线API
 `php artisan make:controller CommonController`<br>
+路由建立:<br>
+```php
+//时间线API
+Route::any('api/timeline','CommonController@timeline');
+```
 `cd xiaohu/app/Http/Controllers`<br>
 `vim CommonController.php`<br>
 ```php
