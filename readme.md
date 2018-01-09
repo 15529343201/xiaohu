@@ -749,7 +749,38 @@ Route::any('api/user/read',function(){
 - 安装normalize.css<br>
 - 安装JQuery(可选)<br>
 - 创建基础文件及基础页面<br>
-
+安装npm`yum install nodejs(先要添加epel源)`<br>
+查看版本:`npm -v`<br>
+`cd public`<br>
+`npm install angular jquery angular-ui-router normalize-css`<br>
+`mv node_modules public/`<br>
+`浏览器输入:localhost:8000/node_modules/angular/angular.js`<br>
+### 首页建立
+首页路由:<br>
+`vim routes/web.php`<br>
+```php
+Route::get('/',function(){
+    return view('index');
+});
+```
+`建立首页页面: cd resources/views/`<br>
+`vim index.blade.php`<br>
+```html
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>晓乎</title>
+    <link rel="stylesheet" href="\node_modules\normalize-css\normalize.css">
+    <script src="\node_modules\jquery\dist\jquery.min.js"></script>
+    <script src="\node_modules\angular\angular.min.js"></script>
+    <script src="\node_modules\angular-ui-router\release\angular-ui-router.min.js"></script>
+</head>
+<body>
+1234
+</body>
+<html>
+```
 
 
 
