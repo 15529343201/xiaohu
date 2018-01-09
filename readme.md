@@ -743,6 +743,13 @@ Route::any('api/user/read',function(){
       return suc($data);
     }
 ```
+## Angular的安装及项目的部署
+- 安装Angular<br>
+- 安装ui-router<br>
+- 安装normalize.css<br>
+- 安装JQuery(可选)<br>
+- 创建基础文件及基础页面<br>
+
 
 
 
