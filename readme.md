@@ -814,7 +814,56 @@ base.js:<br>
 输出:<br>
 name是Bob<br>
 name是<br>
+### ui-router的部署及其使用方法
+index.blade.php:<br>
+```html
+<!doctype html>
+<html lang="zh" ng-app="xiaohu">
+<head>
+    <meta charset="UTF-8">
+    <title>晓乎</title>
+    <link rel="stylesheet" href="/node_modules/normalize-css/normalize.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/angular/angular.min.js"></script>
+    <script src="/node_modules/angular-ui-router/release/angular-ui-router.min.js"                                        ></script>
+    <script src="/js/base.js"></script>
+</head>
+<body>
+<div class="navbar">导航栏</div>
+<div>
+    <div ui-view><div>
+</div>
+</body>
+<html>
+```
+base.js:<br>
+```js
+;(function()
+{
+  'use strict';
 
+  angular.module('xiaohu',[
+    'ui.router',
+
+  ])
+    .config(function($interpolateProvider,
+                     $stateProvider,
+                     $urlRouterProvider)
+    {
+       $interpolateProvider.startSymbol('[:');
+       $interpolateProvider.endSymbol(':]');
+
+       $urlRouterProvider.otherwise('/home');
+
+       $stateProvider
+         .state('home',{
+           url:'/home',
+           template:'首页'
+         })
+    })
+})();
+```
 
 
 
