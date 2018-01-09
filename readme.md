@@ -867,7 +867,7 @@ base.js:<br>
 输出:<br>
 导航栏<br>
 首页<br>
-##整体布局
+## 整体布局
 index.blade.php:<br>
 ```html
 <!doctype html>
