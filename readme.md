@@ -867,6 +867,151 @@ base.js:<br>
 输出:<br>
 导航栏<br>
 首页<br>
+##整体布局
+index.blade.php:<br>
+```html
+<!doctype html>
+<html lang="zh" ng-app="xiaohu">
+<head>
+    <meta charset="UTF-8">
+    <title>晓乎</title>
+    <link rel="stylesheet" href="/node_modules/normalize-css/normalize.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/angular/angular.min.js"></script>
+    <script src="/node_modules/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <script src="/js/base.js"></script>
+</head>
+<body>
+<div class="navbar clearfix">
+  <div class="container">
+    <div class="fl">
+      <div class="navbar-item brand">晓乎</div>
+      <div class="navbar-item">
+          <input type="text">
+      </div>
+    </div>
+    <div class="fr">
+      <a ui-sref="home" class="navbar-item">首页</a>
+      <a ui-sref="login" class="navbar-item">登录</a>
+      <a ui-sref="signup" class="navbar-item">注册</a>
+    </div>
+  </div>
+</div>
 
+<div class="page">
+    <div ui-view><div>
+</div>
+
+</body>
+
+<script type="text/ng-template" id="home.tpl">
+    <div class="home container">
+      首页
+    </div>
+</script>
+
+<script type="text/ng-template" id="signup.tpl">
+    <div class="home container">
+      注册
+    </div>
+</script>
+
+<script type="text/ng-template" id="login.tpl">
+    <div class="home container">
+      登录
+    </div>
+</script>
+<html>
+```
+base.js:<br>
+```js
+;(function()
+{
+  'use strict';
+
+  angular.module('xiaohu',[
+    'ui.router',
+
+  ])
+    .config(function($interpolateProvider,
+                     $stateProvider,
+                     $urlRouterProvider)
+    {
+       $interpolateProvider.startSymbol('[:');
+       $interpolateProvider.endSymbol(':]');
+
+       $urlRouterProvider.otherwise('/home');
+
+       $stateProvider
+         .state('home',{
+           url:'/home',
+           templateUrl:'home.tpl'
+         })
+         .state('signup',{
+           url:'/signup',
+           templateUrl:'signup.tpl'
+         })
+         .state('login',{
+           url:'/login',
+           templateUrl:'login.tpl'
+         })
+    })
+})();
+```
+base.css:<br>
+```css
+*{
+  background: rgba(0,0,0,0.05);
+}
+.fl{
+  float:left;
+}
+
+.fr{
+  float:right;
+}
+
+.clearfix:after,
+.clearfix:before{
+  content:" ";
+  clear:both;
+  display:table;
+}
+
+/*
+.navbar{
+  background:rgba(0,0,0,.1);
+}
+*/
+
+.navbar-item{
+  display:inline-block;
+  line-height:2;
+  padding:2px 4px;
+}
+
+.navbar-item:first-child
+{
+  margin-left:4px;
+}
+.navbar-item:last-child
+{
+  margin-right:4px;
+}
+
+.navbar .brand{
+  font-size:20px;
+  padding-top:0;
+  line-height:1;
+  font-weight:600;
+}
+
+.container{
+  width:600px;
+  margin-left:auto;
+  margin-right:auto;
+}
+```
 
 
