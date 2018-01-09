@@ -783,6 +783,37 @@ Route::get('/',function(){
 </body>
 <html>
 ```
+index.blade.php添加:<br>
+```html
+<div ng-controller="TestController">
+    name是[: name :]
+</div>
+<div>
+    name是[: name :]
+</div>
+```
+base.js:<br>
+```js
+;(function()
+{
+  'use strict';
+
+  angular.module('xiaohu',[])
+    .config(function($interpolateProvider)
+    {
+       $interpolateProvider.startSymbol('[:');
+       $interpolateProvider.endSymbol(':]');
+    })
+
+    .controller('TestController',function($scope)
+    {
+       $scope.name='Bob';
+    });
+})();
+```
+输出:<br>
+name是Bob<br>
+name是<br>
 
 
 
