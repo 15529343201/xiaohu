@@ -712,5 +712,38 @@ Route::any('api/user/change_password',function(){
         ['status'=>0,'msg'=>'db update failed'];
     }
 ```
+### 找回密码API
+路由建立:<br>
+```php
+Route::any('api/user/reset_password',function(){
+    return user_ins()->reset_password();
+});
+```
+### 获取用户信息API
+路由建立:<br>
+```php
+Route::any('api/user/read',function(){
+    return user_ins()->read();
+});
+```
+```php
+    /*获取用户信息API*/
+    public function read(){
+      if(!rq('id'))
+        return err('required id');
+
+      $get=['id','username','avatar_url','intro'];
+      $user=$this->find(rq('id'),$get);
+      $data=$user->toArray();
+      $answer_count=answer_ins()->where('user_id',rq('id'))->count();
+      $question_count=question_ins()->where('user_id',rq('id'))->count();
+      $data['answer_count']=$answer_count;
+      $data['question_count']=$question_count;
+
+      return suc($data);
+    }
+```
+
+
 
 
