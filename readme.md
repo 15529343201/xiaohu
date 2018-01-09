@@ -771,10 +771,12 @@ Route::get('/',function(){
 <head>
     <meta charset="UTF-8">
     <title>晓乎</title>
-    <link rel="stylesheet" href="\node_modules\normalize-css\normalize.css">
-    <script src="\node_modules\jquery\dist\jquery.min.js"></script>
-    <script src="\node_modules\angular\angular.min.js"></script>
-    <script src="\node_modules\angular-ui-router\release\angular-ui-router.min.js"></script>
+    <link rel="stylesheet" href="/node_modules/normalize-css/normalize.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/angular/angular.min.js"></script>
+    <script src="/node_modules/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <script src="/js/base.js"></script>
 </head>
 <body>
 1234
