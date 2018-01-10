@@ -12,6 +12,7 @@ class CommonController extends Controller
   
       /*获取问题数据*/
       $questions=question_ins()
+        ->with('user')
         ->limit($limit)
         ->skip($skip)
         ->orderBy('created_at','desc')
@@ -19,6 +20,8 @@ class CommonController extends Controller
       
       /*获取回答数据*/
       $answers=answer_ins()
+        ->with('users')
+        ->with('user')
         ->limit($limit)
         ->skip($skip)
         ->orderBy('created_at','desc')
@@ -33,6 +36,6 @@ class CommonController extends Controller
 
       $data=$data->values()->all();
 
-      return $data;
+      return ['status'=>1,'data'=>$data];
     }
 }
