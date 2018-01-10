@@ -1013,5 +1013,331 @@ base.css:<br>
   margin-right:auto;
 }
 ```
+`mysql修改字段为NULL:alter table users modify phone_captcha varchar(191) NULL;`<br>
+### 注册模块
+index.blade.php:<br>
+```html
+<!doctype html>
+<html lang="zh" ng-app="xiaohu">
+<head>
+    <meta charset="UTF-8">
+    <title>晓乎</title>
+    <link rel="stylesheet" href="/node_modules/normalize-css/normalize.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/angular/angular.min.js"></script>
+    <script src="/node_modules/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <script src="/js/base.js"></script>
+</head>
+<body>
+<div class="navbar clearfix">
+  <div class="container">
+    <div class="fl">
+      <div class="navbar-item brand">晓乎</div>
+      <div class="navbar-item">
+          <input type="text">
+      </div>
+    </div>
+    <div class="fr">
+      <a ui-sref="home" class="navbar-item">首页</a>
+      <a ui-sref="login" class="navbar-item">登录</a>
+      <a ui-sref="signup" class="navbar-item">注册</a>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+    <div ui-view><div>
+</div>
+
+</body>
+
+<script type="text/ng-template" id="home.tpl">
+    <div class="home container">
+      首页
+    </div>
+</script>
+
+<script type="text/ng-template" id="signup.tpl">
+    <div ng-controller="SignupController"  class="signup container">
+      <div class="card">
+        <h1>注册</h1>
+        [: User.signup_data :]
+        <form name="signup_form" ng-submit="User.signup()">
+          <div class="input-group">
+            <label>用户名:</label>
+            <input name="username"
+                   type="text"
+                   ng-minlength="4"
+                   ng-maxlength="24"
+                   ng-model="User.signup_data.username"
+                   ng-model-options="{debounce:500}"
+                   required
+            >
+            <div ng-if="signup_form.username.$touched"
+                 class="input-error-set">
+              <div ng-if="signup_form.username.$error.required"
+              >用户名为必填项
+              </div>
+              <div ng-if="signup_form.username.$error.maxlength || signup_form.username.$error.minlength"
+              >用户名长度需在4至24位之间
+              </div>
+              <div ng-if="User.signup_username_exists"
+              >用户名已存在
+              </div>
+            </div>
+          </div>
+          <div class="input-group">
+            <label>密码:</label>
+            <input name="password"
+                   type="text"
+                   ng-minlength="6"
+                   ng-maxlength="255"
+                   ng-model="User.signup_data.password"
+                   required
+            >
+            <div ng-if="signup_form.password.$touched" class="input-error-set">
+              <div ng-if="signup_form.password.$error.required"
+              >密码为必填项
+              </div>
+              <div ng-if="signup_form.password.$error.maxlength || signup_form.password.$error.minlength"
+              >密码长度需在6至255位之间
+              </div>
+            </div>
+          </div>
+          <button type="submit"
+                  ng-disabled="signup_form.$invalid"
+          >注册</button>
+        </form>
+      </div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="login.tpl">
+    <div class="home container">
+      登录
+    </div>
+</script>
+<html>
+```
+base.js:<br>
+```js
+;(function()
+{
+  'use strict';
+
+  angular.module('xiaohu',[
+    'ui.router',
+
+  ])
+    .config([
+      '$interpolateProvider',
+      '$stateProvider',
+      '$urlRouterProvider',
+      function($interpolateProvider,
+                     $stateProvider,
+                     $urlRouterProvider){
+       $interpolateProvider.startSymbol('[:');
+       $interpolateProvider.endSymbol(':]');
+
+       $urlRouterProvider.otherwise('/home');
+
+       $stateProvider
+         .state('home',{
+           url:'/home',
+           templateUrl:'home.tpl'
+         })
+         .state('signup',{
+           url:'/signup',
+           templateUrl:'signup.tpl'
+         })
+         .state('login',{
+           url:'/login',
+           templateUrl:'login.tpl'
+         })
+    }])
+
+    .service('UserService',[
+        '$state',
+        '$http',
+        function($state,$http){
+        var me=this;
+        me.signup_data={};
+        me.signup=function(){
+          $http.post('/api/signup',me.signup_data)
+            .then(function(r){
+              if(r.data.status){
+                me.signup_data={};
+                $state.go('login');
+              }
+            },function(e){
+            })
+        }
+        me.username_exists=function(){
+          $http.post('/api/user/exist',
+            {username:me.signup_data.username})
+            .then(function(r)
+            {
+              if(r.data.status && r.data.data.count)
+                me.signup_username_exists=true;
+              else
+                me.signup_username_exists=false;
+            },function(e)
+            {
+              console.log('e',e);
+            })
+        }
+    }])
+
+    .controller('SignupController',[
+      '$scope',
+      'UserService',
+      function($scope,UserService)
+      {
+        $scope.User=UserService;
+
+        $scope.$watch(function(){
+          return UserService.signup_data;
+        },function(n,o){
+          if(n.username != o.username)
+            UserService.username_exists();
+        },true);
+      }])
+})();
+```
+base.css:<br>
+```css
+body{
+  background:#eee;
+}
+
+*
+{
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+a{
+  text-decoration:none;
+}
+
+h1 {
+  font-size:18px;
+  margin-top:0;
+}
+/**{
+  background: rgba(0,0,0,0.05);
+}*/
+.fl{
+  float:left;
+}
+
+.fr{
+  float:right;
+}
+
+.clearfix:after,
+.clearfix:before{
+  content:" ";
+  clear:both;
+  display:table;
+}
 
 
+.navbar{
+  background:#a10;
+  color:#fff;
+}
+
+.navbar a{
+  color:#fff;
+}
+
+.navbar-item{
+  display:inline-block;
+  line-height:2;
+  padding:2px 4px;
+}
+
+.navbar-item:first-child
+{
+  margin-left:4px;
+}
+.navbar-item:last-child
+{
+  margin-right:4px;
+}
+
+.navbar .brand{
+  font-size:20px;
+  padding-top:0;
+  line-height:1;
+  font-weight:600;
+}
+
+.container{
+  width:600px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.container.signup,
+.container.login,
+.container.reset-password{
+  width:400px;
+  margin-top:15px;
+}
+
+[ui-sref]{
+  cursor:pointer;
+}
+
+form,
+label{
+  display:block;
+}
+
+label {
+  margin:4px 0;
+}
+
+.input-error-set{
+  color:#a10;
+  margin:4px 0;
+}
+
+.card{
+  display:block;
+  padding:10px 6px;
+  border-radius:4px;
+  background:#fff;
+  box-shadow:0 1px 2px 1px rgba(0,0,0,.1);
+}
+
+input{
+  display:block;
+  width:100%;
+  border:1px solid rgba(0,0,0,.1);
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  outline:none;
+}
+
+.input-group{
+  margin-bottom:10px;
+}
+
+button {
+  border: 1px solid rgba(0,0,0,0.1);
+  -webkit-border-radius:3px;
+  -moz-border-radius:3px;
+  border-radius:3px;
+  background:#fff;
+}
+
+input,button{
+  padding:5px;
+}
+```
