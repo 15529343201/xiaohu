@@ -10,6 +10,24 @@
 | contains the "web" middleware group. Now create something great!
 |
 */
+//分页
+function paginate($page=1,$limit=16){
+    $limit=$limit?:16;
+    $skip=($page?$page-1:0)*$limit;
+    return [$limit,$skip];
+}
+function err($msg=null){
+    return ['status'=>0,'msg'=>$msg];
+}
+function is_logged_in(){
+    return session('user_id')?:false;
+}
+function suc($data_to_merge=[]){
+    $data=['status'=>1,'data'=>[]];
+    if($data_to_merge)
+      $data['data']=array_merge($data['data'],$data_to_merge);
+    return $data;
+}
 function rq($key=null,$default=null){
     if(!$key)
       return Request::all();
@@ -27,6 +45,9 @@ function answer_ins(){
 function comment_ins(){
     return new App\Comment;
 }
+Route::get('/',function(){
+    return view('index');
+});
 Route::any('api',function(){
     return ['version' => 0.1];
 });
@@ -39,6 +60,21 @@ Route::any('api/login',function(){
 });
 Route::any('api/logout',function(){
     return user_ins()->logout();
+});
+Route::any('api/user/exist',function(){
+    return user_ins()->exist();
+});
+Route::any('api/user/change_password',function(){
+    return user_ins()->change_password();
+});
+Route::any('api/user/reset_password',function(){
+    return user_ins()->reset_password();
+});
+Route::any('api/user/validate_reset_password',function(){
+    return user_ins()->validate_reset_password();
+});
+Route::any('api/user/read',function(){
+    return user_ins()->read();
 });
 /*增加问题API的建立*/
 Route::any('api/question/add',function(){
@@ -62,6 +98,9 @@ Route::any('api/answer/change',function(){
 Route::any('api/answer/read',function(){
     return answer_ins()->read();
 });
+Route::any('api/answer/vote',function(){
+    return answer_ins()->vote();
+});
 Route::any('api/comment/add',function(){
     return comment_ins()->add();
 });
@@ -71,6 +110,8 @@ Route::any('api/comment/read',function(){
 Route::any('api/comment/remove',function(){
     return comment_ins()->remove();
 });
+//时间线API
+Route::any('api/timeline','CommonController@timeline');
 Route::any('test',function(){
     dd(user_ins()->is_logged_in());
 });

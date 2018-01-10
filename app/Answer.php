@@ -81,4 +81,40 @@ class Answer extends Model
 
      return ['status'=>1,'data'=>$answers];
   }
+
+  //投票API
+  public function vote(){
+    if(!user_ins()->is_logged_in())
+      return ['status'=>0,'msg'=>'login required'];
+
+    if(!rq('id') || !rq('vote'))
+      return ['status'=>0,'msg'=>'id and vote are required'];
+
+    $answer=$this->find(rq('id'));
+    if(!$answer)
+      return ['status'=>0,'msg'=>'answer not exists'];
+    
+    /*1赞同,2反对*/
+    $vote=rq('vote')<=1 ?1:2;
+
+    /*检查此用户是否在相同条件下投过票,如果投过票就删除投票*/
+    $vote_ins=$answer->users()
+      ->newPivotStatement()
+      ->where('user_id',session('user_id'))
+      ->where('answer_id',rq('id'))
+      ->delete();
+
+    $answer
+      ->users()
+      ->attach(session('user_id'),['vote'=>$vote]);
+
+    return ['status'=>1];
+  }
+
+  public function users(){
+    return $this
+      ->belongsToMany('App\User')
+      ->withPivot('vote')
+      ->withTimestamps();
+  }
 }
