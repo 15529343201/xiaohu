@@ -1389,3 +1389,63 @@ base.js:<br>
             })
         }
 ```
+### 提问模块
+```html
+<script type="text/ng-template" id="question.add.tpl">
+    <div ng-controller="QuestionAddController" class="question-add container">
+      <div class="card">
+        <form name="question_add_form" ng-submit="Question.add()">
+          <div class="input-group">
+            <label>问题标题</label>
+            <input type="text" name="title" ng-minlength="5" ng-maxlength="255" ng-model="Question.new_question.title" required>
+          </div>
+          <div class="input-group">
+            <label>问题描述</label>
+            <textarea type="text" name="desc" ng-model="Question.new_question.desc">
+            </textarea>
+          </div>
+          <div class="input-group">
+            <button ng-disabled="question_add_form.$invalid" class="primary" type="submit">提交</button>
+          </div>
+        </form>
+      </div>
+    </div>
+</script>
+```
+```js
+.service('QuestionService',[
+      '$http',
+      '$state',
+      function($http,$state){
+        var me=this;
+        me.new_question={};
+
+        me.go_add_question=function(){
+          $state.go('question.add');
+        }
+
+        me.add=function(){
+          if(!me.new_question.title)
+            return;
+
+          $http.post('/api/question/add',me.new_question)
+            .then(function(r){
+              if(r.data.status){
+                me.new_question={};
+                $state.go('home');
+              }
+            },function(e){
+
+            })
+        }
+      }
+    ])
+
+    .controller('QuestionAddController',[
+      '$scope',
+      'QuestionService',
+      function($scope,QuestionService){
+        $scope.Question=QuestionService;
+      }
+    ])
+```
