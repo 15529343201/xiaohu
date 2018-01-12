@@ -1611,7 +1611,7 @@ Route::get('tpl/page/question_add',function(){
 ```
 `public/js/目录下新建common.js,question.js,user.js:`<br>
 common.js:<br>
-``javascript
+```js
 ;(function(){
   'use strict';
   angular.module('common',[])
