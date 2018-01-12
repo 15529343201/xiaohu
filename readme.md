@@ -1502,21 +1502,24 @@ base.js:<br>
 <head>
     <meta charset="UTF-8">
     <title>晓乎</title>
-    <link rel="stylesheet" href="/node_modules/normaliz                                                                   e-css/normalize.css">
+    <link rel="stylesheet" href="/node_modules/normalize-css/normalize.css">
     <link rel="stylesheet" href="/css/base.css">
-    <script src="/node_modules/jquery/dist/jquery.min.j                                                                   s"></script>
-    <script src="/node_modules/angular/angular.min.js">                                                                   </script>
-    <script src="/node_modules/angular-ui-router/releas                                                                   e/angular-ui-router.min.js"></script>
+    <script src="/node_modules/jquery/dist/jquery.min.js"></script>
+    <script src="/node_modules/angular/angular.min.js"></script>
+    <script src="/node_modules/angular-ui-router/release/angular-ui-router.min.js"></script>
     <script src="/js/base.js"></script>
+    <script src="/js/common.js"></script>
+    <script src="/js/user.js"></script>
+    <script src="/js/question.js"></script>
 </head>
 <body>
 <div class="navbar clearfix">
   <div class="container">
     <div class="fl">
-      <div ui-sref="home" class="navbar-item brand">晓                                                                   乎</div>
-      <form ng-submit="Question.go_add_question()" id="                                                                   quick_ask" ng-controller="QuestionAddController">
+      <div ui-sref="home" class="navbar-item brand">晓乎</div>
+      <form ng-submit="Question.go_add_question()" id="quick_ask" ng-controller="QuestionAddController">
         <div class="navbar-item">
-            <input type="text" ng-model="Question.new_q                                                                   uestion.title">
+            <input type="text" ng-model="Question.new_question.title">
         </div>
         <div class="navbar-item">
             <button type="submit">提问</button>
@@ -1526,8 +1529,8 @@ base.js:<br>
     <div class="fr">
       <a ui-sref="home" class="navbar-item">首页</a>
       @if(is_logged_in())
-      <a ui-sref="login" class="navbar-item">{{session(                                                                   'username')}}</a>
-      <a href="{{url('/api/logout')}}" class="navbar-it                                                                   em">登出</a>
+      <a ui-sref="login" class="navbar-item">{{session('username')}}</a>
+      <a href="{{url('/api/logout')}}" class="navbar-item">登出</a>
       @else
       <a ui-sref="login" class="navbar-item">登录</a>
       <a ui-sref="signup" class="navbar-item">注册</a>
@@ -1544,7 +1547,29 @@ base.js:<br>
 ```
 base.js:<br>
 ```javascript
-$stateProvider
+;(function()
+{
+  'use strict';
+
+  angular.module('xiaohu',[
+    'ui.router',
+    'common',
+    'question',
+    'user',
+  ])
+    .config([
+      '$interpolateProvider',
+      '$stateProvider',
+      '$urlRouterProvider',
+      function($interpolateProvider,
+                     $stateProvider,
+                     $urlRouterProvider){
+       $interpolateProvider.startSymbol('[:');
+       $interpolateProvider.endSymbol(':]');
+
+       $urlRouterProvider.otherwise('/home');
+
+       $stateProvider
          .state('home',{
            url:'/home',
            templateUrl:'/tpl/page/home'
@@ -1566,6 +1591,8 @@ $stateProvider
            url:'/add',
            templateUrl:'/tpl/page/question_add'
          })
+    }])
+})();
 ```
 web.php:<br>
 ```php
@@ -1581,4 +1608,179 @@ Route::get('tpl/page/login',function(){
 Route::get('tpl/page/question_add',function(){
   return view('page.question_add');
 });
+```
+`public/js/目录下新建common.js,question.js,user.js:`<br>
+common.js:<br>
+``javascript
+;(function(){
+  'use strict';
+  angular.module('common',[])
+    .service('TimelineService',[
+      '$http',
+      function($http){
+        var me=this;
+        me.data=[];
+        me.current_page=1;
+        me.get=function(conf){
+          if(me.pending) return;
+
+          me.pending=true;
+
+          conf=conf||{page:me.current_page}
+
+          $http.post('/api/timeline',conf)
+            .then(function(r){
+              if(r.data.status){
+                if(r.data.data.length){
+                  me.data=me.data.concat(r.data.data);
+                  me.current_page++;
+                }else{
+                  me.no_more_data=true;
+                }
+              }
+              else
+                console.error('network error')
+            },function(){
+              console.error('newwork error')
+            })
+            .finally(function(){
+              me.pending=false;
+            })
+        }
+      }])
+
+    .controller('HomeController',[
+      '$scope',
+      'TimelineService',
+      function($scope,TimelineService){
+        var $win;
+        $scope.Timeline=TimelineService;
+        TimelineService.get();
+
+        $win=$(window);
+        $win.on('scroll',function(){
+          if($win.scrollTop()-($(document).height()-$win.height())>-30){
+            TimelineService.get();
+          }
+        })
+}])
+})();
+```
+question.js:<br>
+```javascript
+;(function(){
+  'use strict';
+  angular.module('question',[])
+
+  .service('QuestionService',[
+      '$http',
+      '$state',
+      function($http,$state){
+        var me=this;
+        me.new_question={};
+
+        me.go_add_question=function(){
+          $state.go('question.add');
+        }
+
+        me.add=function(){
+          if(!me.new_question.title)
+            return;
+
+          $http.post('/api/question/add',me.new_question)
+            .then(function(r){
+              if(r.data.status){
+                me.new_question={};
+                $state.go('home');
+              }
+            },function(e){
+
+            })
+        }
+      }
+    ])
+
+    .controller('QuestionAddController',[
+      '$scope',
+      'QuestionService',
+      function($scope,QuestionService){
+        $scope.Question=QuestionService;
+      }
+])
+})()
+```
+user.js:<br>
+```javascript
+;(function(){
+  'use strict';
+  angular.module('user',[])
+  .service('UserService',[
+        '$state',
+        '$http',
+        function($state,$http){
+        var me=this;
+        me.signup_data={};
+        me.login_data={};
+        me.signup=function(){
+          $http.post('/api/signup',me.signup_data)
+            .then(function(r){
+              if(r.data.status){
+                me.signup_data={};
+                $state.go('login');
+              }
+            },function(e){
+            })
+        }
+
+        me.login=function(){
+          $http.post('/api/login',me.login_data)
+            .then(function(r){
+              if(r.data.status){
+                location.href='/';
+              }else{
+                me.login_failed=true;
+              }
+            },function(){
+
+            })
+        }
+        me.username_exists=function(){
+          $http.post('/api/user/exist',
+            {username:me.signup_data.username})
+            .then(function(r)
+            {
+              if(r.data.status && r.data.data.count)
+                me.signup_username_exists=true;
+              else
+                me.signup_username_exists=false;
+            },function(e)
+            {
+              console.log('e',e);
+            })
+        }
+    }])
+
+    .controller('SignupController',[
+      '$scope',
+      'UserService',
+      function($scope,UserService)
+      {
+        $scope.User=UserService;
+
+        $scope.$watch(function(){
+          return UserService.signup_data;
+        },function(n,o){
+          if(n.username != o.username)
+            UserService.username_exists();
+        },true);
+      }])
+
+    .controller('LoginController',[
+      '$scope',
+      'UserService',
+      function($scope,UserService){
+        $scope.User=UserService;
+      }
+    ])
+})();
 ```
