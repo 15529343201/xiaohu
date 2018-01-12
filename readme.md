@@ -1449,3 +1449,136 @@ base.js:<br>
       }
     ])
 ```
+### 代码整理
+`mkdir views/page`<br>
+`vim views/page/home.blade.php`<br>
+`cat page/home.blade.php`<br>
+```php
+<div ng-controller="HomeController" class="home card co                                                                   ntainer">
+      <h1>最近动态</h1>
+      <div class="hr"></div>
+      <div class="item-set">
+        <div ng-repeat="item in Timeline.data" class="i                                                                   tem">
+          <div class="vote"></div>
+          <div class="feed-item-content">
+            <div ng-if="item.question_id" class="conten                                                                   t-act">[: item.user.username :]添加了回答</div>
+            <div ng-if="!item.question_id" class="conte                                                                   nt-act">[: item.user.username :]添加了提问</div>
+            <div class="title">[: item.title :]</div>
+            <div class="content-owner">[: item.user.use                                                                   rname :]
+              <span class="desc">12323232323233</span>
+            </div>
+            <div class="content-main">
+              [: item.desc :]
+            </div>
+            <div class="action-set">
+              <div class="comment">评论</div>
+            </div>
+
+            <div class="comment-block">
+              <div class="hr"></div>
+              <div class="comment-item-set">
+                <div class="rect"></div>
+                <div class="comment-item clearfix">
+                  <div class="user">李明</div>
+                  <div class="comment-content">
+                    11111111111111111111111
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="hr"></div>
+        </div>
+        <div ng=if="Timeline.pending" class="tac">加载                                                                   中...</div>
+        <div ng-if="Timeline.no_more_data" class="tac">                                                                   没有更多数据啦</div>
+      </div>
+</div>
+```
+其它页面也类似;<br>
+最终:index.blade.php如下:<br>
+```html
+<!doctype html>
+<html lang="zh" ng-app="xiaohu">
+<head>
+    <meta charset="UTF-8">
+    <title>晓乎</title>
+    <link rel="stylesheet" href="/node_modules/normaliz                                                                   e-css/normalize.css">
+    <link rel="stylesheet" href="/css/base.css">
+    <script src="/node_modules/jquery/dist/jquery.min.j                                                                   s"></script>
+    <script src="/node_modules/angular/angular.min.js">                                                                   </script>
+    <script src="/node_modules/angular-ui-router/releas                                                                   e/angular-ui-router.min.js"></script>
+    <script src="/js/base.js"></script>
+</head>
+<body>
+<div class="navbar clearfix">
+  <div class="container">
+    <div class="fl">
+      <div ui-sref="home" class="navbar-item brand">晓                                                                   乎</div>
+      <form ng-submit="Question.go_add_question()" id="                                                                   quick_ask" ng-controller="QuestionAddController">
+        <div class="navbar-item">
+            <input type="text" ng-model="Question.new_q                                                                   uestion.title">
+        </div>
+        <div class="navbar-item">
+            <button type="submit">提问</button>
+        </div>
+      </form>
+    </div>
+    <div class="fr">
+      <a ui-sref="home" class="navbar-item">首页</a>
+      @if(is_logged_in())
+      <a ui-sref="login" class="navbar-item">{{session(                                                                   'username')}}</a>
+      <a href="{{url('/api/logout')}}" class="navbar-it                                                                   em">登出</a>
+      @else
+      <a ui-sref="login" class="navbar-item">登录</a>
+      <a ui-sref="signup" class="navbar-item">注册</a>
+      @endif
+    </div>
+  </div>
+</div>
+
+<div class="page">
+    <div ui-view><div>
+</div>
+</body>
+<html>
+```
+base.js:<br>
+```javascript
+$stateProvider
+         .state('home',{
+           url:'/home',
+           templateUrl:'/tpl/page/home'
+         })
+         .state('signup',{
+           url:'/signup',
+           templateUrl:'/tpl/page/signup'
+         })
+         .state('login',{
+           url:'/login',
+           templateUrl:'/tpl/page/login'
+         })
+         .state('question',{
+           abstract:true,
+           url:'/question',
+           template:'<div ui-view></div>'
+         })
+         .state('question.add',{
+           url:'/add',
+           templateUrl:'/tpl/page/question_add'
+         })
+```
+web.php:<br>
+```php
+Route::get('tpl/page/home',function(){
+  return view('page.home');
+});
+Route::get('tpl/page/signup',function(){
+  return view('page.signup');
+});
+Route::get('tpl/page/login',function(){
+  return view('page.login');
+});
+Route::get('tpl/page/question_add',function(){
+  return view('page.question_add');
+});
+```
