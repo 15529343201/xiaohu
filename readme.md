@@ -1667,7 +1667,7 @@ common.js:<br>
 })();
 ```
 question.js:<br>
-```javascript
+```js
 ;(function(){
   'use strict';
   angular.module('question',[])
@@ -1707,10 +1707,10 @@ question.js:<br>
         $scope.Question=QuestionService;
       }
 ])
-})()
+})();
 ```
 user.js:<br>
-```javascript
+```js
 ;(function(){
   'use strict';
   angular.module('user',[])
